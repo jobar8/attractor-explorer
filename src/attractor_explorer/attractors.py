@@ -49,8 +49,6 @@ RNG = np.random.default_rng(12)
 class Attractor(BaseModel):
     """Base class for a Parameterized object that can evaluate an attractor trajectory."""
 
-    # class Attractor(param.Parameterized):
-
     # x = param.Number(0, softbounds=(-2, 2), doc='Starting x value', precedence=-1)
     # y = param.Number(0, softbounds=(-2, 2), doc='Starting y value', precedence=-1)
 
@@ -62,24 +60,8 @@ class Attractor(BaseModel):
     a: float = 1.7
     b: float = 1.7
 
-    # colormap = param.ObjectSelector(
-    #     'kgy',
-    #     precedence=0.7,
-    #     check_on_set=False,
-    #     doc='Palette of colors to use for plotting',
-    #     objects=['bgy', 'bmw', 'bgyw', 'bmy', 'fire', 'gray', 'kgy', 'kbc', 'viridis', 'inferno'],
-    # )
-
     colormap: str = 'kgy'
 
-    # equations = param.List(
-    #     [],
-    #     item_type=str,
-    #     precedence=-1,
-    #     readonly=True,
-    #     doc="""
-    #     LaTeX-formatted list of equations""",
-    # )
     equations: list[str] = []
 
     @staticmethod
@@ -235,11 +217,6 @@ class GumowskiMira(Attractor):
         r'$y_{n+1} = -x_n + G(x_{n+1})$',
     ]
 
-    # x = param.Number(0, softbounds=(-20, 20), doc='Starting x value', precedence=0.1)
-    # y = param.Number(0, softbounds=(-20, 20), doc='Starting y value', precedence=0.1)
-    # a = param.Number(0.64, softbounds=(-1, 1))
-    # b = param.Number(0.76, softbounds=(-1, 1))
-    # mu = param.Number(0.6, softbounds=(-2, 2), doc='Attractor parameter mu')
     mu: float = 0.6
 
     @staticmethod
@@ -251,12 +228,6 @@ class GumowskiMira(Attractor):
 
 
 class SymmetricIcon(Attractor):
-    # a = param.Number(0.6, softbounds=(-20, 20), bounds=(None, None), doc='Attractor parameter alpha')
-    # b = param.Number(1.2, softbounds=(-20, 20), bounds=(None, None), doc='Attractor parameter beta')
-    # g = param.Number(0.6, softbounds=(-1, 1), bounds=(None, None), doc='Attractor parameter gamma')
-    # om = param.Number(1.2, softbounds=(-0.2, 0.2), bounds=(None, None), doc='Attractor parameter omega')
-    # l = param.Number(0.6, softbounds=(-3, 3), bounds=(None, None), doc='Attractor parameter lambda')
-    # d = param.Number(1.2, softbounds=(1, 20), bounds=(None, None), doc='Attractor parameter degree')
     g: float = 0.6
     om: float = 1.2
     k: float = 0.6
@@ -287,21 +258,12 @@ class ParameterSets(BaseModel):
     """
 
     data_folder: Path = Path(__file__).parent / 'data'
-    # input_examples_filename = param.String('attractors.yml')
     input_examples_filename: str = 'attractors.yml'
-    # output_examples_filename = param.String('saved_attractors.yml', precedence=0.81)
     output_examples_filename: str = 'saved_attractors.yml'
-    # current = param.Callable(lambda: None, precedence=-1)
     current: Callable = lambda: None
-    # remember_this_one = param.Action(lambda x: x._remember())
 
-    # load = param.Action(lambda x: x._load())
-    # randomize = param.Action(lambda x: x._randomize())
-    # sort = param.Action(lambda x: x._sort())
-    # save = param.Action(lambda x: x._save(), precedence=0.8)
-    # example = param.Selector(objects=[[]], precedence=-1)
-    example: list[str]  = []
-    examples: list[list[str]]  = []
+    example: list[str] = []
+    examples: list[list[str]] = []
     attractors: dict[str, Attractor] = {}
 
     def __init__(self, **params):
