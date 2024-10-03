@@ -69,7 +69,7 @@ class Attractor(BaseModel):
         #     return self.fn(x, y, *args[2:])
 
         # all_dfs = compute_multiple(partial_fn, xlim, ylim, n_points=n_points, n_origins=4, nprocs=8)
-        all_dfs = compute_multiple(self.fn, args, xlim, ylim, n_points=n_points, n_origins=4, nprocs=8)
+        all_dfs = compute_multiple(self.fn, args, xlim, ylim, n_points=n_points, n_origins=4)
 
         return pd.concat(all_dfs)
 
@@ -97,7 +97,7 @@ class Clifford(FourParamAttractor):
 
     @staticmethod
     @jit(nopython=True)
-    def fn(x, y, a, b, c, d, *o):
+    def fn(x, y, a, b, c, d, *o):  # noqa: ARG004
         return sin(a * y) + c * cos(a * x), sin(b * x) + d * cos(b * y)
 
 
@@ -106,7 +106,7 @@ class DeJong(FourParamAttractor):
 
     @staticmethod
     @jit(nopython=True)
-    def fn(x, y, a, b, c, d, *o):
+    def fn(x, y, a, b, c, d, *o):  # noqa: ARG004
         return sin(a * y) - cos(b * x), sin(c * x) - cos(d * y)
 
 
@@ -115,7 +115,7 @@ class Svensson(FourParamAttractor):
 
     @staticmethod
     @jit(nopython=True)
-    def fn(x, y, a, b, c, d, *o):
+    def fn(x, y, a, b, c, d, *o):  # noqa: ARG004
         return d * sin(a * x) - sin(b * y), c * cos(a * x) + cos(b * y)
 
 
@@ -127,7 +127,7 @@ class FractalDream(FourParamAttractor):
 
     @staticmethod
     @jit(nopython=True)
-    def fn(x, y, a, b, c, d, *o):
+    def fn(x, y, a, b, c, d, *o):  # noqa: ARG004
         return sin(b * y) + c * sin(b * x), sin(a * x) + d * sin(a * y)
 
 
@@ -142,7 +142,7 @@ class Bedhead(Attractor):
 
     @staticmethod
     @jit(nopython=True)
-    def fn(x, y, a, b, *o):
+    def fn(x, y, a, b, *o):  # noqa: ARG004
         return y * sin(x * y / b) + cos(a * x - y), x + sin(y) / b
 
     def __call__(self, n):
@@ -164,7 +164,7 @@ class Hopalong1(Attractor):
 
     @staticmethod
     @jit(nopython=True)
-    def fn(x, y, a, b, c, *o):
+    def fn(x, y, a, b, c, *o):  # noqa: ARG004
         return y - sqrt(fabs(b * x - c)) * np.sign(x), a - x
 
 
@@ -176,7 +176,7 @@ class Hopalong2(Hopalong1):
 
     @staticmethod
     @jit(nopython=True)
-    def fn(x, y, a, b, c, *o):
+    def fn(x, y, a, b, c, *o):  # noqa: ARG004
         return y - 1.0 - sqrt(fabs(b * x - 1.0 - c)) * np.sign(x - 1.0), a - x - 1.0
 
 
@@ -196,7 +196,7 @@ class GumowskiMira(Attractor):
 
     @staticmethod
     @jit(nopython=True)
-    def fn(x, y, a, b, mu, *o):
+    def fn(x, y, a, b, mu, *o):  # noqa: ARG004
         xn = y + a * (1 - b * y**2) * y + g_func(x, mu)
         yn = -x + g_func(xn, mu)
         return xn, yn
@@ -210,7 +210,7 @@ class SymmetricIcon(Attractor):
 
     @staticmethod
     @jit(nopython=True)
-    def fn(x, y, a, b, g, om, k, d, *o):
+    def fn(x, y, a, b, g, om, k, d, *o):  # noqa: ARG004
         zzbar = x * x + y * y
         p = a * zzbar + k
         zreal, zimag = x, y

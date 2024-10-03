@@ -67,8 +67,8 @@ exclude = ["*.ipynb"]
 [lint.pylint]
 max-args = 10
 
-[isort]
+[lint.isort]
 known-first-party = ["attractor_explorer"]
 
-[flake8-tidy-imports]
+[lint.flake8-tidy-imports]
 ban-relative-imports = "all"
