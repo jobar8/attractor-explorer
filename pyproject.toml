@@ -45,9 +45,9 @@ dev = [
 ]
 
 [project.urls]
-# Documentation = "https://github.com/jobar8/attractors2023#readme"
-# Issues = "https://github.com/jobar8/attractors2023/issues"
-# Source = "https://github.com/jobar8/attractors2023"
+Documentation = "https://github.com/jobar8/attractor-explorer#readme"
+Issues = "https://github.com/jobar8/attractor-explorer/issues"
+Source = "https://github.com/jobar8/attractor-explorer"
 
 [tool.hatch.version]
 source = "vcs"
@@ -57,18 +57,3 @@ version-file = "src/attractor_explorer/_version.py"
 
 [tool.pytest.ini_options]
 addopts = "--cov=attractor_explorer"
-
-# [tool.coverage.run]
-# source_pkgs = ["attractor_explorer", "tests"]
-# branch = true
-# parallel = true
-
-# [tool.coverage.paths]
-# attractor_explorer = [
-#   "src/attractor_explorer",
-#   "*/attractor-explorer/src/attractor_explorer",
-# ]
-# tests = ["tests", "*/attractor-explorer/tests"]
-
-# [tool.coverage.report]
-# exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
