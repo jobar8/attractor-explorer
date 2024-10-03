@@ -1,29 +1,5 @@
 """
-Support for working with a family of attractor equations (https://en.wikipedia.org/wiki/Attractor#Strange_attractor)
-
-Each attractor has:
-
-- Executable Python code for calculating trajectories, optimized using Numba (numba.pydata.org)
-- Readable equations displayable with KaTeX
-- Examples of interesting patterns stored in a separate attractors.yml file
-
-Support is provided for reading the attractors.yml file and working with the examples in it.
-
-**This file has been copied from:**
-https://github.com/holoviz-topics/examples/blob/main/attractors/attractors.py
-and slightly modified by Joseph Barraud to fit the requirements of this project (attractors2023).
-
-Changes include:
-
-- linting and formatting with Ruff
-- set data folder relative to this file
-- rename attractor classes using CapWords convention (Fractal_Dream -> FractalDream)
-- use ``item_type`` instead of ``class_`` attribute in ``param.List()``
-- use ``.param.update()`` instead of ``set_param()`` in ``attractor.param``
-- rename ``.sig()`` method ``.signature()``
-- use ``np.random.default_rng()`` instead of ``numpy.random.seed()``
-- move ``trajectory_coords()`` and ``trajectory()`` functions to new ``maths.py`` module
-
+Class for working with a family of attractor equations (https://en.wikipedia.org/wiki/Attractor#Strange_attractor)
 """
 
 import inspect
@@ -61,7 +37,6 @@ class Attractor(BaseModel):
     b: float = 1.7
 
     colormap: str = 'kgy'
-
     equations: list[str] = []
 
     @staticmethod
@@ -253,8 +228,6 @@ class SymmetricIcon(Attractor):
 class ParameterSets(BaseModel):
     """
     Allows selection from sets of pre-defined parameters saved in YAML.
-
-    Assumes the YAML file returns a list of groups of values.
     """
 
     data_folder: Path = Path(__file__).parent / 'data'
