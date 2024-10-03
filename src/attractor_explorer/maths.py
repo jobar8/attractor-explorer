@@ -1,6 +1,6 @@
 """Functions to calculate trajectories of attractors."""
 
-from multiprocessing import Pool
+from multiprocessing import Pool  # noqa: F401
 
 import numpy as np
 import pandas as pd
@@ -131,7 +131,7 @@ def compute_multiple(
     ylim: tuple[float, float],
     n_points: int,
     n_origins: int = 24,
-    nprocs: int = 8,
+    # nprocs: int = 8,
 ) -> list[pd.DataFrame]:
     """Create image of the attractor's trajectory limited to a given region."""
     xmin, xmax = xlim
