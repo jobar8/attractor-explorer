@@ -57,3 +57,6 @@ version-file = "src/attractor_explorer/_version.py"
 
 [tool.pytest.ini_options]
 addopts = "--cov=attractor_explorer"
+
+[tool.coverage.run]
+omit = ["src/attractor_explorer/_version.py"]
