@@ -13,9 +13,9 @@ def test_attractor():
     assert attractor.colormap == 'kgy'
 
     fd = at.FractalDream()
-    assert fd.d == 1.2
+    assert fd.d == 2.34
     assert fd.colormap == 'kgy'
-    assert fd.vals() == ['FractalDream', 'kgy', 0.0, 0.0, 1.7, 1.7, 0.6, 1.2]
+    assert fd.vals() == ['FractalDream', 'kgy', 0.0, 0.0, 1.7, 1.7, 1.15, 2.34]
     assert fd.equations[0] == '$x_{n+1} = \\sin\\ by_n + c\\ \\sin\\ bx_n$'
     assert fd.fn(1, 2, 3, 4, 5, 6) == pytest.approx((-2.7946542299162593, -1.535372981133688))
 
@@ -27,8 +27,8 @@ def test_attractor():
 def test_attractor_compute():
     """Test the compute() method of the Attractor class."""
     fd = at.GumowskiMira()
-    all_points = fd.compute(n_points=10)
-    assert len(all_points) == 8
+    all_points = fd(n=10)
+    assert len(all_points) == 10
     assert isinstance(all_points, pd.DataFrame)
 
 
