@@ -9,35 +9,35 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-
-# import param
+import param
 import yaml
 from numba import jit
 from numpy import cos, fabs, sin, sqrt
 from param import concrete_descendents
-from pydantic import BaseModel
+from pydantic import BaseModel, GetCoreSchemaHandler
+from pydantic_core import CoreSchema, core_schema
 
-from attractor_explorer.maths import compute_multiple, trajectory
+from attractor_explorer.maths import trajectory
 
-RNG = np.random.default_rng(12)
+RNG = np.random.default_rng(42)
 
 
-class Attractor(BaseModel):
+class Attractor(param.Parameterized):
     """Base class for a Parameterized object that can evaluate an attractor trajectory."""
 
-    # x = param.Number(0, softbounds=(-2, 2), doc='Starting x value', precedence=-1)
-    # y = param.Number(0, softbounds=(-2, 2), doc='Starting y value', precedence=-1)
-
-    # a = param.Number(1.7, bounds=(-3, 3), doc='Attractor parameter a')
-    # b = param.Number(1.7, bounds=(-3, 3), doc='Attractor parameter b')
-
-    x: float = 0.0
-    y: float = 0.0
-    a: float = 1.7
-    b: float = 1.7
+    x = param.Number(0, softbounds=(-2, 2), step=0.01, doc='Starting x value', precedence=-1)
+    y = param.Number(0, softbounds=(-2, 2), step=0.01, doc='Starting y value', precedence=-1)
+    a = param.Number(1.7, bounds=(-3, 3), step=0.05, doc='Attractor parameter a', precedence=0.2)
+    b = param.Number(1.7, bounds=(-3, 3), step=0.05, doc='Attractor parameter b', precedence=0.2)
 
     colormap: str = 'kgy'
-    equations: list[str] = []
+    equations: tuple[str, ...] = ()
+    __abstract = True
+
+    # This allows pydantic to support this class
+    @classmethod
+    def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> CoreSchema:
+        return core_schema.no_info_after_validator_function(cls, handler(str))  # type: ignore
 
     @staticmethod
     @jit(nopython=True)
@@ -57,22 +57,6 @@ class Attractor(BaseModel):
         for key, value in args.items():
             self.__setattr__(key, value)
 
-    def compute(
-        self, xlim: tuple[float, float] = (-2, 2), ylim: tuple[float, float] = (-2, 2), n_points: int = 1000000
-    ) -> pd.DataFrame:
-        """Return a list of dataframes with *n* points"""
-        args = [getattr(self, p) for p in self.signature()]
-        # global partial_fn  # hack to ensure multiprocessing works
-
-        # def partial_fn(x: ArrayLike, y: ArrayLike) -> NDArray:
-        #     """Partial version of attractor equation with only (x,y) arguments."""
-        #     return self.fn(x, y, *args[2:])
-
-        # all_dfs = compute_multiple(partial_fn, xlim, ylim, n_points=n_points, n_origins=4, nprocs=8)
-        all_dfs = compute_multiple(self.fn, args, xlim, ylim, n_points=n_points, n_origins=4)
-
-        return pd.concat(all_dfs)
-
     def vals(self):
         # return [self.__class__.name] + [self.colormap] + [getattr(self, p) for p in self.signature()]
         return [self.__class__.__name__] + [self.colormap] + [getattr(self, p) for p in self.signature()]
@@ -83,17 +67,15 @@ class Attractor(BaseModel):
 
 
 class FourParamAttractor(Attractor):
-    """Base class for most four-parameter attractors"""
+    """Base class for most four-parameter attractors."""
 
-    # c = param.Number(0.6, softbounds=(-3, 3), doc='Attractor parameter c')
-    # d = param.Number(1.2, softbounds=(-3, 3), doc='Attractor parameter d')
-    c: float = 0.6
-    d: float = 1.2
+    c = param.Number(0.6, softbounds=(-3, 3), step=0.05, doc='Attractor parameter c', precedence=0.3)
+    d = param.Number(1.2, softbounds=(-3, 3), step=0.05, doc='Attractor parameter d', precedence=0.3)
+    __abstract = True
 
 
 class Clifford(FourParamAttractor):
-    # equations = param.List([r'$x_{n+1} = \sin\ ay_n + c\ \cos\ ax_n$', r'$y_{n+1} = \sin\ bx_n + d\ \cos\ by_n$'])
-    equations: list[str] = [r'$x_{n+1} = \sin\ ay_n + c\ \cos\ ax_n$', r'$y_{n+1} = \sin\ bx_n + d\ \cos\ by_n$']
+    equations = (r'$x_{n+1} = \sin\ ay_n + c\ \cos\ ax_n$', r'$y_{n+1} = \sin\ bx_n + d\ \cos\ by_n$')
 
     @staticmethod
     @jit(nopython=True)
@@ -102,7 +84,7 @@ class Clifford(FourParamAttractor):
 
 
 class DeJong(FourParamAttractor):
-    equations: list[str] = [r'$x_{n+1} = \sin\ ay_n - c\ \cos\ bx_n$', r'$y_{n+1} = \sin\ cx_n - d\ \cos\ dy_n$']
+    equations = (r'$x_{n+1} = \sin\ ay_n - c\ \cos\ bx_n$', r'$y_{n+1} = \sin\ cx_n - d\ \cos\ dy_n$')
 
     @staticmethod
     @jit(nopython=True)
@@ -111,7 +93,7 @@ class DeJong(FourParamAttractor):
 
 
 class Svensson(FourParamAttractor):
-    equations: list[str] = [r'$x_{n+1} = d\ \sin\ ax_n - \sin\ by_n$', r'$y_{n+1} = c\ \cos\ ax_n + \cos\ by_n$']
+    equations = (r'$x_{n+1} = d\ \sin\ ax_n - \sin\ by_n$', r'$y_{n+1} = c\ \cos\ ax_n + \cos\ by_n$')
 
     @staticmethod
     @jit(nopython=True)
@@ -119,11 +101,11 @@ class Svensson(FourParamAttractor):
         return d * sin(a * x) - sin(b * y), c * cos(a * x) + cos(b * y)
 
 
-class FractalDream(FourParamAttractor):
-    equations: list[str] = [r'$x_{n+1} = \sin\ by_n + c\ \sin\ bx_n$', r'$y_{n+1} = \sin\ ax_n + d\ \sin\ ay_n$']
+class FractalDream(Attractor):
+    equations = (r'$x_{n+1} = \sin\ by_n + c\ \sin\ bx_n$', r'$y_{n+1} = \sin\ ax_n + d\ \sin\ ay_n$')
 
-    # c = param.Number(1.15, softbounds=(-0.5, 1.5), doc='Attractor parameter c')
-    # d = param.Number(2.34, softbounds=(-0.5, 1.5), doc='Attractor parameter d')
+    c = param.Number(1.15, softbounds=(-0.5, 1.5), step=0.05, doc='Attractor parameter c')
+    d = param.Number(2.34, softbounds=(-0.5, 1.5), step=0.05, doc='Attractor parameter d')
 
     @staticmethod
     @jit(nopython=True)
@@ -132,13 +114,13 @@ class FractalDream(FourParamAttractor):
 
 
 class Bedhead(Attractor):
-    equations: list[str] = [
+    equations = (
         r'$x_{n+1} = y_n\ \sin\ \frac{x_ny_n}{b} + \cos(ax_n-y_n)$',
         r'$y_{n+1} = x_n+\frac{\sin\ y_n}{b}$',
-    ]
+    )
 
-    # a = param.Number(0.64, bounds=(-1, 1))
-    # b = param.Number(0.76, bounds=(-1, 1))
+    a = param.Number(0.64, softbounds=(-1, 1))
+    b = param.Number(0.76, softbounds=(-1, 1))
 
     @staticmethod
     @jit(nopython=True)
@@ -148,19 +130,17 @@ class Bedhead(Attractor):
     def __call__(self, n):
         # Avoid interactive divide-by-zero errors for b
         epsilon = 3 * np.finfo(float).eps
-        if -epsilon < self.b < epsilon:
+        if -epsilon < float(self.b) < epsilon:  # type: ignore
             self.b = float(epsilon)
-        # return super(Bedhead, self).__call__(n)
         return super().__call__(n)
 
 
 class Hopalong1(Attractor):
-    equations: list[str] = [r'$x_{n+1} = y_n-\mathrm{sgn}(x_n)\sqrt{\left|\ bx_n-c\ \right|}$', r'$y_{n+1} = a-x_n$']
+    equations = (r'$x_{n+1} = y_n-\mathrm{sgn}(x_n)\sqrt{\left|\ bx_n-c\ \right|}$', r'$y_{n+1} = a-x_n$')
 
-    # a = param.Number(9.8, bounds=(0, 10))
-    # b = param.Number(4.1, bounds=(0, 10))
-    # c = param.Number(3.8, bounds=(0, 10), doc='Attractor parameter c')
-    c: float = 3.8
+    a = param.Number(9.8, bounds=(0, 10))
+    b = param.Number(4.1, bounds=(0, 10))
+    c = param.Number(3.8, bounds=(0, 10), doc='Attractor parameter c')
 
     @staticmethod
     @jit(nopython=True)
@@ -169,10 +149,10 @@ class Hopalong1(Attractor):
 
 
 class Hopalong2(Hopalong1):
-    equations: list[str] = [
+    equations = (
         r'$x_{n+1} = y_n-1-\mathrm{sgn}(x_n-1)\sqrt{\left|\ bx_n-1-c\ \right|}$',
         r'$y_{n+1} = a-x_n-1$',
-    ]
+    )
 
     @staticmethod
     @jit(nopython=True)
@@ -186,13 +166,16 @@ def g_func(x, mu):
 
 
 class GumowskiMira(Attractor):
-    equations: list[str] = [
+    equations = (
         r'$G(x) = \mu x + \frac{2(1-\mu)x^2}{1+x^2}$',
         r'$x_{n+1} = y_n + ay_n(1-by_n^2) + G(x_n)$',
         r'$y_{n+1} = -x_n + G(x_{n+1})$',
-    ]
-
-    mu: float = 0.6
+    )
+    x = param.Number(0, softbounds=(-20, 20), doc='Starting x value', precedence=0.1)
+    y = param.Number(0, softbounds=(-20, 20), doc='Starting y value', precedence=0.1)
+    a = param.Number(0.64, softbounds=(-1, 1))
+    b = param.Number(0.76, softbounds=(-1, 1))
+    mu = param.Number(0.6, softbounds=(-2, 2), step=0.01, doc='Attractor parameter mu', precedence=0.4)
 
     @staticmethod
     @jit(nopython=True)
@@ -203,26 +186,28 @@ class GumowskiMira(Attractor):
 
 
 class SymmetricIcon(Attractor):
-    g: float = 0.6
-    om: float = 1.2
-    k: float = 0.6
-    d: float = 1.2
+    a = param.Number(0.6, softbounds=(-20, 20), step=0.05, doc='Attractor parameter alpha')
+    b = param.Number(1.2, softbounds=(-20, 20), step=0.05, doc='Attractor parameter beta')
+    gamma = param.Number(0.6, softbounds=(-1, 1), step=0.05, doc='Attractor parameter gamma', precedence=0.5)
+    omega = param.Number(1.2, softbounds=(-0.2, 0.2), step=0.01, doc='Attractor parameter omega', precedence=0.5)
+    lambda_ = param.Number(0.6, softbounds=(-3, 3), step=0.01, doc='Attractor parameter lambda', precedence=0.5)
+    degree = param.Integer(1, softbounds=(1, 25), doc='Attractor parameter degree', precedence=0.5)
 
     @staticmethod
     @jit(nopython=True)
-    def fn(x, y, a, b, g, om, k, d, *o):  # noqa: ARG004
+    def fn(x, y, a, b, gamma, omega, lambda_, degree, *o):  # noqa: ARG004
         zzbar = x * x + y * y
-        p = a * zzbar + k
+        p = a * zzbar + lambda_
         zreal, zimag = x, y
 
-        for _i in range(1, d - 1):
+        for _ in range(1, degree - 1):
             za, zb = zreal * x - zimag * y, zimag * x + zreal * y
             zreal, zimag = za, zb
 
         zn = x * zreal - y * zimag
         p += b * zn
 
-        return p * x + g * zreal - om * y, p * y - g * zimag + om * x
+        return p * x + gamma * zreal - omega * y, p * y - gamma * zimag + omega * x
 
 
 class ParameterSets(BaseModel):
