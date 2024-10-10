@@ -101,7 +101,7 @@ class Svensson(FourParamAttractor):
         return d * sin(a * x) - sin(b * y), c * cos(a * x) + cos(b * y)
 
 
-class FractalDream(Attractor):
+class FractalDream(FourParamAttractor):
     equations = (r'$x_{n+1} = \sin\ by_n + c\ \sin\ bx_n$', r'$y_{n+1} = \sin\ ax_n + d\ \sin\ ay_n$')
 
     c = param.Number(1.15, softbounds=(-0.5, 1.5), step=0.05, doc='Attractor parameter c')

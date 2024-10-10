@@ -1,13 +1,14 @@
 """Panel dashboard to visualise attractors of various types.
 
-This is a conversion to a simple script of the panel notebook available here:
-https://github.com/holoviz-topics/examples/blob/main/attractors/attractors_panel.ipynb
+This app is based on a panel notebook available here:
+https://examples.holoviz.org/gallery/attractors/attractors.html
 
-The app can be launched with:
+It can be launched with:
 
-    > panel serve --show src/attractors2023/attractors_explorer.py
+    > panel serve --show src/attractor_explorer/attractors_explorer.py
 
 """
+# pyright: reportAttributeAccessIssue=false, reportArgumentType=false
 
 import panel as pn
 import param
@@ -29,18 +30,11 @@ CSS = """
 --design-background-color: black;
 --design-background-text-color: white;
 --panel-surface-color: black;
-# --design-secondary-color: red;
-# --design-secondary-text-color: white;
-# --design-primary-text-color: blue;
-# --design-primary-color: brown;
-# --design-surface-color: green;
-# --design-surface-text-color: red
 }
 #sidebar {
 background-color: black;
 }
 """
-
 # Hack can be removed when https://github.com/holoviz/panel/issues/7360 has been solved
 CMAP_CSS_HACK = 'div, div:hover {background: #2b3035; color: white}'
 
@@ -86,7 +80,7 @@ class AttractorsExplorer(pn.viewable.Viewer):
     @param.depends('attractor_type.param', 'n_points', 'colormap.value', 'interpolation.value')
     def __panel__(self):
         trajectory = self.attractor_type(n=self.n_points)  # type: ignore
-        return render_attractor(trajectory, cmap=self.colormap.value, size=PLOT_SIZE, how=self.interpolation.value)  # type: ignore
+        return render_attractor(trajectory, cmap=self.colormap.value, size=PLOT_SIZE, how=self.interpolation.value)
 
     @param.depends('attractor_type.param')
     def equations(self):
@@ -98,29 +92,11 @@ class AttractorsExplorer(pn.viewable.Viewer):
 
     @param.depends('resolution', watch=True)
     def set_npoints(self):
-        self.n_points = RESOLUTIONS[self.resolution]  # type: ignore
+        self.n_points = RESOLUTIONS[self.resolution]
 
 
 ats = AttractorsExplorer(name='Attractors Explorer')
 params.current = lambda: ats.attractor_type
-
-text = pn.pane.Markdown(
-    """
-This [Panel](https://panel.holoviz.org/) app lets you explore
-[strange attractors](https://en.wikipedia.org/wiki/Attractor#Strange_attractor) --
-fractal-like patterns that can emerge from the trajectory of a particle
-in 2D space.
-
-Here you can choose between different attractor families, selecting from
-predefined examples or adjusting your own values and adding them to the
-saved list when you discover something interesting.
-
-The trajectories are calculated quickly using [Numba](http://numba.pydata.org),
-aggregated using [Datashader](http://datashader.org), and colorized using
-[Colorcet](http://colorcet.pyviz.org).""",
-    dedent=True,
-)
-
 
 pn.template.FastListTemplate(
     title='Attractor Explorer',
@@ -141,7 +117,6 @@ pn.template.FastListTemplate(
         ),
         ats.interpolation,
         ats.colormap,
-        # text,
     ],
     main=[ats.equations, ats],
     main_layout=None,
@@ -152,4 +127,4 @@ pn.template.FastListTemplate(
     header_background='teal',
     theme='dark',
     theme_toggle=False,
-).servable('Attractors').show(port=5006)
+).servable('Attractor Explorer')#.show(port=5006)
