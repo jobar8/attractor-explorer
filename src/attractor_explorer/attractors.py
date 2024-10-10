@@ -40,7 +40,7 @@ class Attractor(param.Parameterized):
         return core_schema.no_info_after_validator_function(cls, handler(str))  # type: ignore
 
     @staticmethod
-    @jit(nopython=True)
+    @jit(cache=True)
     def fn(x, y, a, b, *o):
         pass
 
@@ -78,7 +78,7 @@ class Clifford(FourParamAttractor):
     equations = (r'$x_{n+1} = \sin\ ay_n + c\ \cos\ ax_n$', r'$y_{n+1} = \sin\ bx_n + d\ \cos\ by_n$')
 
     @staticmethod
-    @jit(nopython=True)
+    @jit(cache=True)
     def fn(x, y, a, b, c, d, *o):  # noqa: ARG004
         return sin(a * y) + c * cos(a * x), sin(b * x) + d * cos(b * y)
 
@@ -87,7 +87,7 @@ class DeJong(FourParamAttractor):
     equations = (r'$x_{n+1} = \sin\ ay_n - c\ \cos\ bx_n$', r'$y_{n+1} = \sin\ cx_n - d\ \cos\ dy_n$')
 
     @staticmethod
-    @jit(nopython=True)
+    @jit(cache=True)
     def fn(x, y, a, b, c, d, *o):  # noqa: ARG004
         return sin(a * y) - cos(b * x), sin(c * x) - cos(d * y)
 
@@ -96,7 +96,7 @@ class Svensson(FourParamAttractor):
     equations = (r'$x_{n+1} = d\ \sin\ ax_n - \sin\ by_n$', r'$y_{n+1} = c\ \cos\ ax_n + \cos\ by_n$')
 
     @staticmethod
-    @jit(nopython=True)
+    @jit(cache=True)
     def fn(x, y, a, b, c, d, *o):  # noqa: ARG004
         return d * sin(a * x) - sin(b * y), c * cos(a * x) + cos(b * y)
 
@@ -108,7 +108,7 @@ class FractalDream(FourParamAttractor):
     d = param.Number(2.34, softbounds=(-0.5, 1.5), step=0.05, doc='Attractor parameter d')
 
     @staticmethod
-    @jit(nopython=True)
+    @jit(cache=True)
     def fn(x, y, a, b, c, d, *o):  # noqa: ARG004
         return sin(b * y) + c * sin(b * x), sin(a * x) + d * sin(a * y)
 
@@ -123,7 +123,7 @@ class Bedhead(Attractor):
     b = param.Number(0.76, softbounds=(-1, 1))
 
     @staticmethod
-    @jit(nopython=True)
+    @jit(cache=True)
     def fn(x, y, a, b, *o):  # noqa: ARG004
         return y * sin(x * y / b) + cos(a * x - y), x + sin(y) / b
 
@@ -143,7 +143,7 @@ class Hopalong1(Attractor):
     c = param.Number(3.8, bounds=(0, 10), doc='Attractor parameter c')
 
     @staticmethod
-    @jit(nopython=True)
+    @jit(cache=True)
     def fn(x, y, a, b, c, *o):  # noqa: ARG004
         return y - sqrt(fabs(b * x - c)) * np.sign(x), a - x
 
@@ -155,12 +155,12 @@ class Hopalong2(Hopalong1):
     )
 
     @staticmethod
-    @jit(nopython=True)
+    @jit(cache=True)
     def fn(x, y, a, b, c, *o):  # noqa: ARG004
         return y - 1.0 - sqrt(fabs(b * x - 1.0 - c)) * np.sign(x - 1.0), a - x - 1.0
 
 
-@jit(nopython=True)
+@jit(cache=True)
 def g_func(x, mu):
     return mu * x + 2 * (1 - mu) * x**2 / (1.0 + x**2)
 
@@ -178,7 +178,7 @@ class GumowskiMira(Attractor):
     mu = param.Number(0.6, softbounds=(-2, 2), step=0.01, doc='Attractor parameter mu', precedence=0.4)
 
     @staticmethod
-    @jit(nopython=True)
+    @jit(cache=True)
     def fn(x, y, a, b, mu, *o):  # noqa: ARG004
         xn = y + a * (1 - b * y**2) * y + g_func(x, mu)
         yn = -x + g_func(xn, mu)
@@ -194,7 +194,7 @@ class SymmetricIcon(Attractor):
     degree = param.Integer(1, softbounds=(1, 25), doc='Attractor parameter degree', precedence=0.5)
 
     @staticmethod
-    @jit(nopython=True)
+    @jit(cache=True)
     def fn(x, y, a, b, gamma, omega, lambda_, degree, *o):  # noqa: ARG004
         zzbar = x * x + y * y
         p = a * zzbar + lambda_
