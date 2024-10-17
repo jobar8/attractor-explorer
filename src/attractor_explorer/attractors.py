@@ -24,8 +24,8 @@ class Attractor(param.Parameterized):
 
     x = param.Number(0, softbounds=(-2, 2), step=0.01, doc='Starting x value', precedence=-1)
     y = param.Number(0, softbounds=(-2, 2), step=0.01, doc='Starting y value', precedence=-1)
-    a = param.Number(1.7, bounds=(-3, 3), step=0.05, doc='Attractor parameter a', precedence=0.2)
-    b = param.Number(1.7, bounds=(-3, 3), step=0.05, doc='Attractor parameter b', precedence=0.2)
+    a = param.Number(1.7, softbounds=(-3, 3), step=0.05, doc='Attractor parameter a', precedence=0.2)
+    b = param.Number(1.7, softbounds=(-3, 3), step=0.05, doc='Attractor parameter b', precedence=0.2)
 
     colormap: str = 'kgy'
     equations: tuple[str, ...] = ()
@@ -253,7 +253,6 @@ class ParameterSets(param.Parameterized):
 
     def _randomize(self):
         RNG.shuffle(self.param.example.objects)
-        # self.examples = self.param.example.objects
         self.example = self.param.example.objects[0]
 
     def _sort(self):
