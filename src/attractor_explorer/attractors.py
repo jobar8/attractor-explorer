@@ -208,16 +208,11 @@ class ParameterSets(param.Parameterized):
     """
 
     data_folder: Path = Path(__file__).parent / 'data'
-    # input_examples_filename: str = 'attractors.yml'
     input_examples_filename = param.Filename('attractors.yml', search_paths=[data_folder.as_posix()])
     output_examples_filename = param.Filename(
         'saved_attractors.yml', check_exists=False, search_paths=[data_folder.as_posix()]
     )
-    # current: Callable = lambda: None
     current = param.Callable(lambda: None, precedence=-1)
-
-    # example: list[str] = []
-    # examples: list[list[str]] = []
     attractors: dict[str, Attractor] = {}
 
     load = param.Action(lambda x: x._load())
@@ -242,15 +237,10 @@ class ParameterSets(param.Parameterized):
 
     def _load(self):
         with Path(self.input_examples_filename).open('r') as f:  # type: ignore
-            # with self.input_examples_filename.open('r') as f:
             vals = yaml.safe_load(f)
             if len(vals) > 0:
-                print('len=', len(vals))
                 self.param.example.objects[:] = vals
-                # self.examples = vals
                 self.example = vals[0]
-                print('load', self.example)
-                # self.param.example.default = vals[0]
 
     # def _save(self):
     #     if self.output_examples_filename == self.param.input_examples_filename.default:
@@ -263,32 +253,24 @@ class ParameterSets(param.Parameterized):
         return self.example
 
     def _randomize(self):
-        print('randomise start')
         RNG.shuffle(self.param.example.objects)
         # self.examples = self.param.example.objects
         self.example = self.param.example.objects[0]
-        print('randomise', self.example)
 
     def _sort(self):
-        print('sort start')
         self.param.example.objects[:] = sorted(self.param.example.objects)
-        # self.examples = sorted(self.param.example.objects)
         self.example = self.param.example.objects[0]
-        print('sort', self.example)
 
     def _add_item(self, item):
-        # self.examples += [item]
         self.param.example.objects += [item]
         self.example = item
 
     def _remember(self):
         vals = self.current().vals() # type: ignore
         self._add_item(vals)
-        # print(self.examples[-1])
 
     def args(self, name):
         return [v[1:] for v in self.param.example.objects if v[0] == name]
-        # return [v[1:] for v in self.examples if v[0] == name]
 
     def get_attractor(self, name: str, *args) -> Attractor:
         """Factory function to return an Attractor object with the given name and arg values."""
@@ -297,9 +279,3 @@ class ParameterSets(param.Parameterized):
         # attractor.param.update(**dict(zip(fn_params, args, strict=True)))
         attractor.update(dict(zip(fn_params, args, strict=True)))
         return attractor
-
-    @param.depends('example', watch=True)
-    def _update_example(self):
-        # self.param.example.objects = self.examples
-        # self.example = self.examples[0]
-        print('update_example', self.example)

@@ -158,4 +158,4 @@ pn.template.FastListTemplate(
     header_background='teal',
     theme='dark',
     theme_toggle=False,
-).servable('Attractor Explorer').show(port=5006)
+).servable('Attractor Explorer')
