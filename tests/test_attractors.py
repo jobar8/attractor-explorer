@@ -36,6 +36,7 @@ def test_parametersets():
     """Test the ParameterSets class."""
     params = at.ParameterSets(name='Attractors')
     assert params.example == ['Svensson', 'fire', 0, 0, 1.4, 1.56, 1.4, -6.56]
-    assert len(params.examples) == 75
+    assert len(params.param.example.objects) == 75
     assert len(params.args('Svensson')) == 4
-    assert params.attractors['GumowskiMira'].__class__.__name__ == 'GumowskiMira'
+    assert params.attractors['GumowskiMira'].__class__.name == 'GumowskiMira'
+    assert isinstance(params.get_attractor(*['FractalDream', 'kgy', 0.0, 0.0, 1.7, 1.7, 1.15, 2.34]), at.Attractor)
