@@ -212,7 +212,7 @@ class ParameterSets(param.Parameterized):
         'saved_attractors.yml', check_exists=False, search_paths=[data_folder.as_posix()]
     )
     current = param.Callable(lambda: None, precedence=-1)
-    attractors: dict[str, Attractor] = {}
+    attractors: dict[str, Attractor]
 
     load = param.Action(lambda x: x._load())
     randomize = param.Action(lambda x: x._randomize())
