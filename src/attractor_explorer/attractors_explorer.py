@@ -117,7 +117,7 @@ pn.template.FastListTemplate(
                     'orientation': 'vertical',
                     'button_type': 'warning',
                     'button_style': 'outline',
-                    'stylesheets': [':host(.outline) .bk-btn-group .bk-btn-warning.bk-active {color:white}']
+                    'stylesheets': [':host(.outline) .bk-btn-group .bk-btn-warning.bk-active {color:white}'],
                 },
                 'resolution': {'widget_type': pn.widgets.RadioButtonGroup, 'button_type': 'success'},
             },
@@ -143,7 +143,10 @@ pn.template.FastListTemplate(
                 show_name=False,
                 parameters=['input_examples_filename', 'load', 'example', 'remember_this_one'],
             ),
-            title='Load and Save',collapsed=True, header_color='white',header_background='#2c71b4',
+            title='Load and Save',
+            collapsed=True,
+            header_color='white',
+            header_background='#2c71b4',
         ),
     ],
     main=[

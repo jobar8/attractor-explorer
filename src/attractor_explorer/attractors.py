@@ -31,7 +31,6 @@ class Attractor(param.Parameterized):
     equations: tuple[str, ...] = ()
     __abstract = True
 
-
     @staticmethod
     @jit(cache=True)
     def fn(x, y, a, b, *o):
@@ -266,7 +265,7 @@ class ParameterSets(param.Parameterized):
         self.example = item
 
     def _remember(self):
-        vals = self.current().vals() # type: ignore
+        vals = self.current().vals()  # type: ignore
         self._add_item(vals)
 
     def args(self, name):
