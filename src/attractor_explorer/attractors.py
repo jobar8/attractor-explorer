@@ -3,7 +3,6 @@ Class for working with a family of attractor equations (https://en.wikipedia.org
 """
 
 import inspect
-from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -14,8 +13,6 @@ import yaml
 from numba import jit
 from numpy import cos, fabs, sin, sqrt
 from param import concrete_descendents
-from pydantic import BaseModel, GetCoreSchemaHandler
-from pydantic_core import CoreSchema, core_schema
 
 from attractor_explorer.maths import trajectory
 
@@ -34,10 +31,6 @@ class Attractor(param.Parameterized):
     equations: tuple[str, ...] = ()
     __abstract = True
 
-    # This allows pydantic to support this class
-    @classmethod
-    def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> CoreSchema:
-        return core_schema.no_info_after_validator_function(cls, handler(str))  # type: ignore
 
     @staticmethod
     @jit(cache=True)
@@ -58,8 +51,7 @@ class Attractor(param.Parameterized):
             self.__setattr__(key, value)
 
     def vals(self):
-        # return [self.__class__.name] + [self.colormap] + [getattr(self, p) for p in self.signature()]
-        return [self.__class__.__name__] + [self.colormap] + [getattr(self, p) for p in self.signature()]
+        return [self.__class__.name] + [self.colormap] + [getattr(self, p) for p in self.signature()]
 
     def signature(self) -> list[str]:
         """Returns the calling signature expected by this attractor function"""
@@ -210,19 +202,30 @@ class SymmetricIcon(Attractor):
         return p * x + gamma * zreal - omega * y, p * y - gamma * zimag + omega * x
 
 
-class ParameterSets(BaseModel):
+class ParameterSets(param.Parameterized):
     """
     Allows selection from sets of pre-defined parameters saved in YAML.
     """
 
     data_folder: Path = Path(__file__).parent / 'data'
-    input_examples_filename: str = 'attractors.yml'
-    output_examples_filename: str = 'saved_attractors.yml'
-    current: Callable = lambda: None
+    # input_examples_filename: str = 'attractors.yml'
+    input_examples_filename = param.Filename('attractors.yml', search_paths=[data_folder.as_posix()])
+    output_examples_filename = param.Filename(
+        'saved_attractors.yml', check_exists=False, search_paths=[data_folder.as_posix()]
+    )
+    # current: Callable = lambda: None
+    current = param.Callable(lambda: None, precedence=-1)
 
-    example: list[str] = []
-    examples: list[list[str]] = []
+    # example: list[str] = []
+    # examples: list[list[str]] = []
     attractors: dict[str, Attractor] = {}
+
+    load = param.Action(lambda x: x._load())
+    randomize = param.Action(lambda x: x._randomize())
+    sort = param.Action(lambda x: x._sort())
+    remember_this_one = param.Action(lambda x: x._remember())
+    # save = param.Action(lambda x: x._save(), precedence=0.8)
+    example = param.Selector(objects=[[]], precedence=1, instantiate=False)
 
     def __init__(self, **params):
         super().__init__(**params)
@@ -230,20 +233,24 @@ class ParameterSets(BaseModel):
         self._load()
 
         self.attractors = {k: v(name=f'{k} parameters') for k, v in sorted(concrete_descendents(Attractor).items())}
-        # check parameters for each kind of attractors
-        for k in self.attractors:
+        # update attractor instances with the first example of each type
+        for attractor in self.attractors:
             try:
-                self.get_attractor(k, *self.args(k)[0])
+                self.get_attractor(attractor, *self.args(attractor)[0])
             except IndexError:
                 pass
 
     def _load(self):
-        with Path(self.data_folder / self.input_examples_filename).open('r') as f:
+        with Path(self.input_examples_filename).open('r') as f:  # type: ignore
+            # with self.input_examples_filename.open('r') as f:
             vals = yaml.safe_load(f)
             if len(vals) > 0:
-                # self.param.example.objects[:] = vals
-                self.examples = vals
+                print('len=', len(vals))
+                self.param.example.objects[:] = vals
+                # self.examples = vals
                 self.example = vals[0]
+                print('load', self.example)
+                # self.param.example.default = vals[0]
 
     # def _save(self):
     #     if self.output_examples_filename == self.param.input_examples_filename.default:
@@ -256,24 +263,32 @@ class ParameterSets(BaseModel):
         return self.example
 
     def _randomize(self):
-        # RNG.shuffle(self.param.example.objects)
-        RNG.shuffle(self.examples)
+        print('randomise start')
+        RNG.shuffle(self.param.example.objects)
+        # self.examples = self.param.example.objects
+        self.example = self.param.example.objects[0]
+        print('randomise', self.example)
 
     def _sort(self):
-        # self.param.example.objects[:] = sorted(self.param.example.objects)
-        self.examples = sorted(self.examples)
+        print('sort start')
+        self.param.example.objects[:] = sorted(self.param.example.objects)
+        # self.examples = sorted(self.param.example.objects)
+        self.example = self.param.example.objects[0]
+        print('sort', self.example)
 
     def _add_item(self, item):
-        self.examples += [item]
+        # self.examples += [item]
+        self.param.example.objects += [item]
         self.example = item
 
-    # def _remember(self):
-    #     vals = self.current().vals()
-    #     self._add_item(vals)
+    def _remember(self):
+        vals = self.current().vals() # type: ignore
+        self._add_item(vals)
+        # print(self.examples[-1])
 
     def args(self, name):
-        # return [v[1:] for v in self.param.example.objects if v[0] == name]
-        return [v[1:] for v in self.examples if v[0] == name]
+        return [v[1:] for v in self.param.example.objects if v[0] == name]
+        # return [v[1:] for v in self.examples if v[0] == name]
 
     def get_attractor(self, name: str, *args) -> Attractor:
         """Factory function to return an Attractor object with the given name and arg values."""
@@ -282,3 +297,9 @@ class ParameterSets(BaseModel):
         # attractor.param.update(**dict(zip(fn_params, args, strict=True)))
         attractor.update(dict(zip(fn_params, args, strict=True)))
         return attractor
+
+    @param.depends('example', watch=True)
+    def _update_example(self):
+        # self.param.example.objects = self.examples
+        # self.example = self.examples[0]
+        print('update_example', self.example)

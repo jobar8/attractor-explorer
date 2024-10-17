@@ -28,7 +28,7 @@ CSS = """
 :root {
 --background-color: black
 --design-background-color: black;
---design-background-text-color: white;
+--design-background-text-color: #ff7f00;   # orange
 --panel-surface-color: black;
 }
 #sidebar {
@@ -42,13 +42,13 @@ pn.extension('katex', design='material', global_css=[CSS], sizing_mode='stretch_
 pn.config.throttled = True
 
 
-params = at.ParameterSets(name='Attractors')
-
-
 class AttractorsExplorer(pn.viewable.Viewer):
     """Select and render attractors."""
 
-    attractor_type = param.Selector(default=params.attractors['Clifford'], objects=params.attractors, precedence=0.5)
+    param_sets = at.ParameterSets(name='Attractors')
+    attractor_type = param.Selector(
+        default=param_sets.attractors['Clifford'], objects=param_sets.attractors, precedence=0.5
+    )
 
     resolution = param.Selector(
         doc='Resolution (n points)',
@@ -94,9 +94,17 @@ class AttractorsExplorer(pn.viewable.Viewer):
     def set_npoints(self):
         self.n_points = RESOLUTIONS[self.resolution]
 
+    @pn.depends('param_sets.example', watch=True)
+    def update_attractor(self):
+        a = self.param_sets.get_attractor(*self.param_sets.example)
+        if a is not self.attractor_type:
+            self.param.update(attractor_type=a)
+            self.colormap.value = colormaps[self.param_sets.example[1]]  # type: ignore
+
 
 ats = AttractorsExplorer(name='Attractors Explorer')
-params.current = lambda: ats.attractor_type
+ats.param_sets.current = lambda: ats.attractor_type
+
 
 pn.template.FastListTemplate(
     title='Attractor Explorer',
@@ -109,6 +117,7 @@ pn.template.FastListTemplate(
                     'orientation': 'vertical',
                     'button_type': 'warning',
                     'button_style': 'outline',
+                    'stylesheets': [':host(.outline) .bk-btn-group .bk-btn-warning.bk-active {color:white}']
                 },
                 'resolution': {'widget_type': pn.widgets.RadioButtonGroup, 'button_type': 'success'},
             },
@@ -117,8 +126,30 @@ pn.template.FastListTemplate(
         ),
         ats.interpolation,
         ats.colormap,
+        pn.layout.Card(
+            pn.Param(
+                ats.param_sets.param,
+                widgets={
+                    'input_examples_filename': {
+                        'widget_type': pn.widgets.TextInput,
+                        'stylesheets': ['.bk-input-group > label {background-color: black}'],
+                        'name': '',
+                    },
+                    'example': {
+                        'stylesheets': ['bk-panel-models-widgets-CustomSelect {background: #2b3035; color: black}'],
+                        'name': '',
+                    },
+                },
+                show_name=False,
+                parameters=['input_examples_filename', 'load', 'example', 'remember_this_one'],
+            ),
+            title='Load and Save',collapsed=True, header_color='white',header_background='#2c71b4',
+        ),
     ],
-    main=[ats.equations, ats],
+    main=[
+        ats.equations,
+        ats,
+    ],
     main_layout=None,
     sidebar_width=SIDEBAR_WIDTH,
     sidebar_footer=__version__,
@@ -127,4 +158,4 @@ pn.template.FastListTemplate(
     header_background='teal',
     theme='dark',
     theme_toggle=False,
-).servable('Attractor Explorer')
+).servable('Attractor Explorer').show(port=5006)
