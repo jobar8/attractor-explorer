@@ -206,20 +206,19 @@ class ParameterSets(param.Parameterized):
     Allows selection from sets of pre-defined parameters saved in YAML.
     """
 
-    data_folder: Path = Path(__file__).parent / 'data'
-    input_examples_filename = param.Filename('attractors.yml', search_paths=[data_folder.as_posix()])
-    output_examples_filename = param.Filename(
-        'saved_attractors.yml', check_exists=False, search_paths=[data_folder.as_posix()]
-    )
+    data_folder = param.Foldername('data', search_paths=[Path(__file__).parent.as_posix()])
+    input_examples_filename = param.String('attractors.yml')
+    output_examples_filename = param.String('saved_attractors.yml', precedence=1.0)
+
     current = param.Callable(lambda: None, precedence=-1)
     attractors: dict[str, Attractor]
 
     load = param.Action(lambda x: x._load())
     random = param.Action(lambda x: x._randomize())
-    sort = param.Action(lambda x: x._sort())
-    remember_this_one = param.Action(lambda x: x._remember())
-    # save = param.Action(lambda x: x._save(), precedence=0.8)
-    example = param.Selector(objects=[[]], precedence=1, instantiate=False)
+    # sort = param.Action(lambda x: x._sort())
+    remember_this_one = param.Action(lambda x: x._remember(), precedence=0.81)
+    save = param.Action(lambda x: x._save(), precedence=0.99)
+    example = param.Selector(objects=[[]], precedence=0.8, instantiate=False)
 
     def __init__(self, **params):
         super().__init__(**params)
@@ -235,18 +234,18 @@ class ParameterSets(param.Parameterized):
                 pass
 
     def _load(self):
-        with Path(self.input_examples_filename).open('r') as f:  # type: ignore
+        with (Path(self.data_folder) / self.input_examples_filename).open('r') as f:  # type: ignore
             vals = yaml.safe_load(f)
             if len(vals) > 0:
-                self.param.example.objects[:] = vals
+                self.param.example.objects = vals
                 self.example = vals[0]
 
-    # def _save(self):
-    #     if self.output_examples_filename == self.param.input_examples_filename.default:
-    #         msg = 'Cannot override the default attractors file.'
-    #         raise FileExistsError(msg)
-    #     with Path(self.data_folder / self.output_examples_filename).open('w') as f:
-    #         yaml.dump(self.param.example.objects, f)
+    def _save(self):
+        if self.output_examples_filename == self.param.input_examples_filename.default:
+            msg = 'Cannot override the default attractors file.'
+            raise FileExistsError(msg)
+        with (Path(self.data_folder) / self.output_examples_filename).open('w') as f:  # type: ignore
+            yaml.dump(list(self.param.example.objects), f)
 
     def __call__(self):
         return self.example
