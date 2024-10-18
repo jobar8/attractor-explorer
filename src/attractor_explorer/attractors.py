@@ -244,8 +244,10 @@ class ParameterSets(param.Parameterized):
         if self.output_examples_filename == self.param.input_examples_filename.default:
             msg = 'Cannot override the default attractors file.'
             raise FileExistsError(msg)
-        with (Path(self.data_folder) / self.output_examples_filename).open('w') as f:  # type: ignore
+        output_path = Path(self.data_folder) / self.output_examples_filename  # type: ignore
+        with output_path.open('w') as f:
             yaml.dump(list(self.param.example.objects), f)
+        print(f'Parameters have been saved to {output_path}')  # noqa: T201
 
     def __call__(self):
         return self.example
