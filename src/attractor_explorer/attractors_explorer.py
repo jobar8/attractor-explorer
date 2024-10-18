@@ -68,7 +68,7 @@ class AttractorsExplorer(pn.viewable.Viewer):
         options=colormaps,
         ncols=1,
         swatch_width=100,
-        margin=(25, 0, 200, 0),
+        margin=(25, 10, 25, 10),
         stylesheets=[CMAP_CSS_HACK],
     )
 
@@ -124,8 +124,8 @@ pn.template.FastListTemplate(
             expand=True,
             show_name=False,
         ),
-        ats.interpolation,
         ats.colormap,
+        ats.interpolation,
         pn.layout.Card(
             pn.Param(
                 ats.param_sets.param,
@@ -133,7 +133,7 @@ pn.template.FastListTemplate(
                     'input_examples_filename': {
                         'widget_type': pn.widgets.TextInput,
                         'stylesheets': ['.bk-input-group > label {background-color: black}'],
-                        'name': '',
+                        # 'name': '',
                     },
                     'example': {
                         'stylesheets': ['bk-panel-models-widgets-CustomSelect {background: #2b3035; color: black}'],
@@ -141,12 +141,12 @@ pn.template.FastListTemplate(
                     },
                 },
                 show_name=False,
-                parameters=['input_examples_filename', 'load', 'example', 'remember_this_one'],
             ),
             title='Load and Save',
             collapsed=True,
             header_color='white',
             header_background='#2c71b4',
+            margin=(40, 10, 100, 10),
         ),
     ],
     main=[
@@ -161,4 +161,4 @@ pn.template.FastListTemplate(
     header_background='teal',
     theme='dark',
     theme_toggle=False,
-).servable('Attractor Explorer')
+).servable('Attractor Explorer')  # .show(port=5006, open=False)
