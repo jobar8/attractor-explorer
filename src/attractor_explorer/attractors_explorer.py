@@ -68,7 +68,7 @@ class AttractorsExplorer(pn.viewable.Viewer):
         options=colormaps,
         ncols=1,
         swatch_width=100,
-        margin=(25, 0, 200, 0),
+        margin=(25, 10, 40, 10),
         stylesheets=[CMAP_CSS_HACK],
     )
 
@@ -124,11 +124,12 @@ pn.template.FastListTemplate(
             expand=True,
             show_name=False,
         ),
-        ats.interpolation,
         ats.colormap,
+        ats.interpolation,
         pn.layout.Card(
             pn.Param(
                 ats.param_sets.param,
+                parameters=['input_examples_filename', 'load', 'random', 'example', 'remember_this_one'],
                 widgets={
                     'input_examples_filename': {
                         'widget_type': pn.widgets.TextInput,
@@ -141,12 +142,12 @@ pn.template.FastListTemplate(
                     },
                 },
                 show_name=False,
-                parameters=['input_examples_filename', 'load', 'example', 'remember_this_one'],
             ),
             title='Load and Save',
             collapsed=True,
             header_color='white',
             header_background='#2c71b4',
+            margin=(25, 10, 100, 10),
         ),
     ],
     main=[

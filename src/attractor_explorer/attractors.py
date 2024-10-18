@@ -215,7 +215,7 @@ class ParameterSets(param.Parameterized):
     attractors: dict[str, Attractor]
 
     load = param.Action(lambda x: x._load())
-    randomize = param.Action(lambda x: x._randomize())
+    random = param.Action(lambda x: x._randomize())
     sort = param.Action(lambda x: x._sort())
     remember_this_one = param.Action(lambda x: x._remember())
     # save = param.Action(lambda x: x._save(), precedence=0.8)
