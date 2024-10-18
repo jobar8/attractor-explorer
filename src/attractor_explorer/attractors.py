@@ -260,7 +260,7 @@ class ParameterSets(param.Parameterized):
         self.example = self.param.example.objects[0]
 
     def _add_item(self, item):
-        self.param.example.objects += [item]
+        self.param.example.objects.append(item)
         self.example = item
 
     def _remember(self):
