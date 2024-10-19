@@ -45,8 +45,16 @@ MODAL_CSS = """
 # Hack can be removed when https://github.com/holoviz/panel/issues/7360 has been solved
 CMAP_CSS_HACK = 'div, div:hover {background: #2b3035; color: white}'
 
-pn.extension('katex', design='material', global_css=[GLOBAL_CSS], sizing_mode='stretch_width')  # type: ignore
-pn.config.throttled = True
+pn.extension(
+    'katex',  # type: ignore
+    design='material',
+    global_css=[GLOBAL_CSS],
+    sizing_mode='stretch_width',
+    notifications=True,
+    throttled=False,
+)
+
+pn.state.notifications.position = 'center-center'
 
 
 class AttractorsExplorer(pn.viewable.Viewer):
@@ -185,7 +193,7 @@ class ImageSaver(pn.viewable.Viewer):
     Dialog for saving attractor to image file.
     """
 
-    output_folder = param.Foldername('output', search_paths=[Path(__file__).parent.as_posix()])
+    output_folder = param.Foldername('output', search_paths=[Path(__file__).parent.as_posix()], check_exists=False)
     output_filename = param.String('attractor.png')
     n_points = param.Integer(500_000_000)
     image_size = param.Integer(1000)
@@ -196,8 +204,13 @@ class ImageSaver(pn.viewable.Viewer):
         trajectory = ats.attractor_type(n=self.n_points)  # type: ignore
         img = render_attractor(trajectory, cmap=ats.colormap.value, size=self.image_size, how=ats.interpolation.value)
         output_path = Path(self.output_folder) / self.output_filename  # type: ignore
-        save_image(img, output_path)
-        print(f'Image has been saved to {output_path}')  # noqa: T201
+        try:
+            save_image(img, output_path)
+        except Exception as err:
+            pn.state.notifications.error(f'Error: {err}', duration=0)  # type: ignore
+        else:
+            pn.state.notifications.success(f'The image has been saved to {output_path}', duration=0)  # type: ignore
+            print(f'Image has been saved to {output_path}')  # noqa: T201
 
     def __panel__(self):
         return pn.Param(self)
