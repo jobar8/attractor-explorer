@@ -121,3 +121,9 @@ def render_attractor(
     cvs = ds.Canvas(plot_width=size, plot_height=size)
     agg = getattr(cvs, plot_type)(trajectory, 'x', 'y', agg=ds.count())
     yield ds.tf.shade(agg, cmap=cmap, **kwargs)
+
+
+def save_image(img, output_path, color: str = 'black'):
+    """Export image to png file."""
+    output_image = ds.tf.set_background(next(img), color=color)
+    output_image.to_pil().save(output_path, format='png')
