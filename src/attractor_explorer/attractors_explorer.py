@@ -205,12 +205,13 @@ class ImageSaver(pn.viewable.Viewer):
         img = render_attractor(trajectory, cmap=ats.colormap.value, size=self.image_size, how=ats.interpolation.value)
         output_path = Path(self.output_folder) / self.output_filename  # type: ignore
         try:
-            save_image(img, output_path)
+            save_image(next(img), output_path)
         except Exception as err:
             pn.state.notifications.error(f'Error: {err}', duration=0)  # type: ignore
         else:
-            pn.state.notifications.success(f'The image has been saved to {output_path}', duration=0)  # type: ignore
-            print(f'Image has been saved to {output_path}')  # noqa: T201
+            msg = f'The image has been saved to {output_path}'
+            pn.state.notifications.success(msg, duration=0)  # type: ignore
+            print(msg)  # noqa: T201
 
     def __panel__(self):
         return pn.Param(self)
