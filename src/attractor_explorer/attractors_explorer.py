@@ -198,6 +198,7 @@ class ImageSaver(pn.viewable.Viewer):
     output_filename = param.String('attractor.png')
     n_points = param.Integer(500_000_000, label='Number of points')
     image_size = param.Integer(1000, label='Image size in pixels')
+    background_color = param.String(default='black')
     save = param.Action(lambda x: x._save(), precedence=0.99)
 
     def _save(self):
@@ -206,7 +207,7 @@ class ImageSaver(pn.viewable.Viewer):
         img = render_attractor(trajectory, cmap=ats.colormap.value, size=self.image_size, how=ats.interpolation.value)
         output_path = Path(self.output_folder) / self.output_filename  # type: ignore
         try:
-            save_image(next(img), output_path)
+            save_image(next(img), output_path, color=self.background_color)
         except Exception as err:
             pn.state.notifications.error(f'Error: {err}', duration=0)  # type: ignore
         else:
