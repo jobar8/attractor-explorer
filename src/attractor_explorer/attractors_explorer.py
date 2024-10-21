@@ -10,11 +10,13 @@ It can be launched with:
 """
 # pyright: reportAttributeAccessIssue=false, reportArgumentType=false
 
+from pathlib import Path
+
 import panel as pn
 import param
 
 from attractor_explorer import attractors as at
-from attractor_explorer.shared import colormaps, render_attractor
+from attractor_explorer.shared import colormaps, render_attractor, save_image
 
 try:
     from attractor_explorer._version import __version__
@@ -24,22 +26,35 @@ except ModuleNotFoundError:
 RESOLUTIONS = {'Low': 200_000, 'Medium': 10_000_000, 'High': 50_000_000, 'Very High': 100_000_000}
 PLOT_SIZE = 800
 SIDEBAR_WIDTH = 360
-CSS = """
+GLOBAL_CSS = """
 :root {
 --background-color: black
 --design-background-color: black;
 --design-background-text-color: #ff7f00;   # orange
 --panel-surface-color: black;
 }
+"""
+MODAL_CSS = """
 #sidebar {
-background-color: black;
+# background-color: black;
+}
+#pn-Modal {
+    --dialog-width: 33%;
 }
 """
 # Hack can be removed when https://github.com/holoviz/panel/issues/7360 has been solved
 CMAP_CSS_HACK = 'div, div:hover {background: #2b3035; color: white}'
 
-pn.extension('katex', design='material', global_css=[CSS], sizing_mode='stretch_width')  # type: ignore
-pn.config.throttled = True
+pn.extension(
+    'katex',  # type: ignore
+    design='material',
+    global_css=[GLOBAL_CSS],
+    sizing_mode='stretch_width',
+    notifications=True,
+    throttled=False,
+)
+
+pn.state.notifications.position = 'center-center'
 
 
 class AttractorsExplorer(pn.viewable.Viewer):
@@ -61,6 +76,7 @@ class AttractorsExplorer(pn.viewable.Viewer):
         bounds=(1, None),
         softbounds=(1, RESOLUTIONS['Very High']),
         doc='Number of points',
+        label='Number of points',
         precedence=0.8,
     )
     colormap = pn.widgets.ColorMap(
@@ -106,7 +122,14 @@ ats = AttractorsExplorer(name='Attractors Explorer')
 ats.param_sets.current = lambda: ats.attractor_type
 
 
-pn.template.FastListTemplate(
+def _callback(event):  # noqa: ARG001
+    template.open_modal()
+
+
+save_button = pn.widgets.Button(name='Export to Image File', margin=(20, 10))
+save_button.on_click(_callback)
+
+template = pn.template.FastListTemplate(
     title='Attractor Explorer',
     sidebar=[
         pn.Param(
@@ -126,6 +149,7 @@ pn.template.FastListTemplate(
         ),
         ats.colormap,
         ats.interpolation,
+        save_button,
         pn.layout.Card(
             pn.Param(
                 ats.param_sets.param,
@@ -142,11 +166,11 @@ pn.template.FastListTemplate(
                 },
                 show_name=False,
             ),
-            title='Load and Save',
+            title='Load and Save Parameters',
             collapsed=True,
             header_color='white',
             header_background='#2c71b4',
-            margin=(40, 10, 100, 10),
+            margin=(20, 10, 100, 10),
         ),
     ],
     main=[
@@ -161,4 +185,46 @@ pn.template.FastListTemplate(
     header_background='teal',
     theme='dark',
     theme_toggle=False,
-).servable('Attractor Explorer')  # .show(port=5006, open=False)
+    raw_css=[MODAL_CSS],
+)
+
+
+class ImageSaver(pn.viewable.Viewer):
+    """
+    Dialog for saving attractor to image file.
+    """
+
+    output_folder = param.Foldername('output', search_paths=[Path(__file__).parent.as_posix()], check_exists=False)
+    output_filename = param.String('attractor.png')
+    n_points = param.Integer(500_000_000, label='Number of points')
+    image_size = param.Integer(1000, label='Image size in pixels')
+    background_color = param.String(default='black')
+    save = param.Action(lambda x: x._save(), precedence=0.99)
+
+    def _save(self):
+        """Create and save attractor image as png file."""
+        trajectory = ats.attractor_type(n=self.n_points)  # type: ignore
+        img = render_attractor(trajectory, cmap=ats.colormap.value, size=self.image_size, how=ats.interpolation.value)
+        output_path = Path(self.output_folder) / self.output_filename  # type: ignore
+        try:
+            save_image(next(img), output_path, color=self.background_color)
+        except Exception as err:
+            pn.state.notifications.error(f'Error: {err}', duration=0)  # type: ignore
+        else:
+            msg = f'The image has been saved to {output_path}'
+            pn.state.notifications.success(msg, duration=0)  # type: ignore
+            print(msg)  # noqa: T201
+
+    def __panel__(self):
+        return pn.Param(
+            self,
+            widgets={
+                'background_color': {'widget_type': pn.widgets.ColorPicker(name='Background Colour', value='#000000')}
+            },
+        )
+
+
+image_saver = ImageSaver(name='Choose settings for the export:')
+template.modal.extend(['# Export to image file...', image_saver])
+
+template.servable('Attractor Explorer')  # .show(port=5006, open=False)

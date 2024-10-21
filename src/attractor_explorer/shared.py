@@ -1,6 +1,7 @@
 """Support functions for dashboards."""
 
-from collections.abc import Generator
+from pathlib import Path
+from typing import Generator
 
 import datashader as ds
 import pandas as pd
@@ -121,3 +122,9 @@ def render_attractor(
     cvs = ds.Canvas(plot_width=size, plot_height=size)
     agg = getattr(cvs, plot_type)(trajectory, 'x', 'y', agg=ds.count())
     yield ds.tf.shade(agg, cmap=cmap, **kwargs)
+
+
+def save_image(img: ds.tf.Image, output_path: Path | str, color: str = 'black') -> None:
+    """Export image to png file."""
+    output_image = ds.tf.set_background(img, color=color)
+    output_image.to_pil().save(output_path, format='png')
