@@ -129,9 +129,9 @@ class Bedhead(Attractor):
 class Hopalong1(Attractor):
     equations = (r'$x_{n+1} = y_n-\mathrm{sgn}(x_n)\sqrt{\left|\ bx_n-c\ \right|}$', r'$y_{n+1} = a-x_n$')
 
-    a = param.Number(9.8, bounds=(0, 10))
-    b = param.Number(4.1, bounds=(0, 10))
-    c = param.Number(3.8, bounds=(0, 10), doc='Attractor parameter c')
+    a = param.Number(9.8, softbounds=(0, 10), step=0.05, precedence=0.2)
+    b = param.Number(4.1, softbounds=(0, 10), step=0.05, precedence=0.21)
+    c = param.Number(3.8, softbounds=(0, 10), step=0.05, doc='Attractor parameter c', precedence=0.22)
 
     @staticmethod
     @jit(cache=True)
