@@ -216,7 +216,12 @@ class ImageSaver(pn.viewable.Viewer):
             print(msg)  # noqa: T201
 
     def __panel__(self):
-        return pn.Param(self)
+        return pn.Param(
+            self,
+            widgets={
+                'background_color': {'widget_type': pn.widgets.ColorPicker(name='Background Colour', value='#000000')}
+            },
+        )
 
 
 image_saver = ImageSaver(name='Choose settings for the export:')
