@@ -76,6 +76,7 @@ class AttractorsExplorer(pn.viewable.Viewer):
         bounds=(1, None),
         softbounds=(1, RESOLUTIONS['Very High']),
         doc='Number of points',
+        label='Number of points',
         precedence=0.8,
     )
     colormap = pn.widgets.ColorMap(
@@ -195,8 +196,8 @@ class ImageSaver(pn.viewable.Viewer):
 
     output_folder = param.Foldername('output', search_paths=[Path(__file__).parent.as_posix()], check_exists=False)
     output_filename = param.String('attractor.png')
-    n_points = param.Integer(500_000_000)
-    image_size = param.Integer(1000)
+    n_points = param.Integer(500_000_000, label='Number of points')
+    image_size = param.Integer(1000, label='Image size in pixels')
     save = param.Action(lambda x: x._save(), precedence=0.99)
 
     def _save(self):
