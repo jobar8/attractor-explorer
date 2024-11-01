@@ -8,6 +8,7 @@
 [![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-360/)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-360/)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-360/)
+[![Numba](https://img.shields.io/badge/Numba-Accelerated-green.svg?style=flat-square&logo=numba)](https://numba.pydata.org/)
 ![Linting - Tests](https://github.com/jobar8/attractor-explorer/actions/workflows/checks.yml/badge.svg)
 
 -----
