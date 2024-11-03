@@ -9,7 +9,8 @@
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/downloads/release/python-31110/)
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3127/)
 [![Linting - Tests](https://github.com/jobar8/attractor-explorer/actions/workflows/checks.yml/badge.svg)](https://github.com/jobar8/attractor-explorer/actions/workflows/checks.yml)
-[![Numba](https://img.shields.io/badge/Numba-Accelerated-green.svg?style=flat-square&logo=numba)](https://numba.pydata.org/)
+[![Numba](https://img.shields.io/badge/Numba-Accelerated-green.svg?logo=numba)](https://numba.pydata.org/)
+[![Panel](https://img.shields.io/badge/Panel-Powered-blue.svg)](https://panel.holoviz.org/)
 
 -----
 
