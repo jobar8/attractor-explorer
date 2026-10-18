@@ -9,7 +9,7 @@ from attractor_explorer import maths
 
 
 @jit(nopython=True)
-def fn(x, y, a, b, c, d, *o):  # noqa: ARG001
+def fn(x, y, a, b, c, d, *o):  # ruff: ignore[unused-function-argument]
     return sin(b * y) + c * sin(b * x), sin(a * x) + d * sin(a * y)
 
 

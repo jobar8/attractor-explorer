@@ -55,7 +55,7 @@ unfixable = [
 [lint.per-file-ignores]
 # Ignore `E402` (import violations) in all `__init__.py` files, and in selected subdirectories.
 "__init__.py" = ["module-import-not-at-top-of-file", "undefined-local-with-import-star", "undefined-local-with-import-star-usage"]
-"**/{tests,docs,tools}/*" = ["module-import-not-at-top-of-file", "magic-value-comparison", "assert", "relative-imports"]
+"**/{tests,docs,tools}/*" = ["module-import-not-at-top-of-file", "magic-value-comparison", "assert", "relative-imports", "float-equality-comparison"]
 
 [lint.pylint]
 max-args = 10
