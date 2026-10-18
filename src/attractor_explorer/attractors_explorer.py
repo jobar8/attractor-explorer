@@ -209,7 +209,7 @@ class ImageSaver(pn.viewable.Viewer):
         output_path = Path(self.output_folder) / self.output_filename
         try:
             save_image(next(img), output_path, color=self.background_color)
-        except Exception as err:
+        except Exception as err:  # ruff: ignore[blind-except]
             pn.state.notifications.error(f'Error: {err}', duration=0)  # type: ignore
         else:
             msg = f'The image has been saved to {output_path}'
