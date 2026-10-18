@@ -9,6 +9,7 @@ It can be launched with:
 
 """
 # pyright: reportAttributeAccessIssue=false, reportArgumentType=false
+# ruff: file-ignore[bad-dunder-method-name]
 
 from pathlib import Path
 
@@ -46,7 +47,7 @@ MODAL_CSS = """
 CMAP_CSS_HACK = 'div, div:hover {background: #2b3035; color: white}'
 
 pn.extension(
-    'katex',  # type: ignore
+    'katex',
     design='material',
     global_css=[GLOBAL_CSS],
     sizing_mode='stretch_width',
@@ -95,7 +96,7 @@ class AttractorsExplorer(pn.viewable.Viewer):
 
     @param.depends('attractor_type.param', 'n_points', 'colormap.value', 'interpolation.value')
     def __panel__(self):
-        trajectory = self.attractor_type(n=self.n_points)  # type: ignore
+        trajectory = self.attractor_type(n=self.n_points)
         return render_attractor(trajectory, cmap=self.colormap.value, size=PLOT_SIZE, how=self.interpolation.value)
 
     @param.depends('attractor_type.param')
@@ -122,7 +123,7 @@ ats = AttractorsExplorer(name='Attractors Explorer')
 ats.param_sets.current = lambda: ats.attractor_type
 
 
-def _callback(event):  # noqa: ARG001
+def _callback(event):  # ruff: ignore[unused-function-argument]
     template.open_modal()
 
 
@@ -203,17 +204,17 @@ class ImageSaver(pn.viewable.Viewer):
 
     def _save(self):
         """Create and save attractor image as png file."""
-        trajectory = ats.attractor_type(n=self.n_points)  # type: ignore
+        trajectory = ats.attractor_type(n=self.n_points)
         img = render_attractor(trajectory, cmap=ats.colormap.value, size=self.image_size, how=ats.interpolation.value)
-        output_path = Path(self.output_folder) / self.output_filename  # type: ignore
+        output_path = Path(self.output_folder) / self.output_filename
         try:
             save_image(next(img), output_path, color=self.background_color)
-        except Exception as err:
+        except Exception as err:  # ruff: ignore[blind-except]
             pn.state.notifications.error(f'Error: {err}', duration=0)  # type: ignore
         else:
             msg = f'The image has been saved to {output_path}'
             pn.state.notifications.success(msg, duration=0)  # type: ignore
-            print(msg)  # noqa: T201
+            print(msg)  # ruff: ignore[print]
 
     def __panel__(self):
         return pn.Param(

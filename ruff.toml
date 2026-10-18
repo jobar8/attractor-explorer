@@ -2,63 +2,60 @@ line-length = 120
 
 [lint]
 extend-select = [
-    "ARG",
-    "B",
-    "C",
-    "DTZ",
-    "E",
-    "EM",
-    "F",
-    "FBT",
-    "I",
-    "ICN",
-    "N",
-    "PLC",
-    "PLE",
-    "PLR",
-    "PLW",
-    "RUF",
-    "S",
-    "T",
-    "TID",
-    "UP",
-    "W",
-    "YTT",
+  "ARG",
+  "B",
+  "C",
+  "DTZ",
+  "E",
+  "EM",
+  "F",
+  "FBT",
+  "I",
+  "ICN",
+  "N",
+  "PLC",
+  "PLE",
+  "PLR",
+  "PLW",
+  "RUF",
+  "S",
+  "T",
+  "TID",
+  "UP",
+  "W",
+  "YTT",
 ]
+preview = true
 
 ignore = [
-    # Allow non-abstract empty methods in abstract base classes
-    "B027",
-    # Allow boolean positional values in function calls, like `dict.get(... True)`
-    "FBT003",
-    # Ignore checks for possible passwords
-    "S105",
-    "S106",
-    "S107",
-    # Ignore complexity
-    "C901",
-    "PLR0911",
-    "PLR0912",
-    "PLR0913",
-    "PLR0915",
+  # Allow non-abstract empty methods in abstract base classes
+  "empty-method-without-abstract-decorator",
+  # Allow boolean positional values in function calls, like `dict.get(... True)`
+  "boolean-positional-value-in-call",
+  # Ignore checks for possible passwords
+  "hardcoded-password-string",
+  "hardcoded-password-func-arg",
+  "hardcoded-password-default",
+  # Ignore complexity
+  "complex-structure",
+  "too-many-return-statements",
+  "too-many-branches",
+  "too-many-arguments",
+  "too-many-statements",
 ]
 exclude = ["*.ipynb"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
 unfixable = [
-    # Don't touch unused imports
-    "F401",
+  # Don't touch unused imports
+  "unused-import",
 ]
 
 [lint.per-file-ignores]
 # Ignore `E402` (import violations) in all `__init__.py` files, and in selected subdirectories.
-"__init__.py" = ["E402", "F403", "F405"]
-"**/{tests,docs,tools}/*" = ["E402", "PLR2004", "S101", "TID252"]
-
-[format]
-quote-style = "single"
-exclude = ["*.ipynb"]
+"__init__.py" = ["module-import-not-at-top-of-file", "undefined-local-with-import-star", "undefined-local-with-import-star-usage"]
+"**/{tests,docs,tools}/*" = ["module-import-not-at-top-of-file", "magic-value-comparison", "assert", "relative-imports", "float-equality-comparison"]
 
 [lint.pylint]
 max-args = 10
@@ -68,3 +65,8 @@ known-first-party = ["attractor_explorer"]
 
 [lint.flake8-tidy-imports]
 ban-relative-imports = "all"
+
+[format]
+quote-style = "single"
+exclude = ["*.ipynb"]
+preview = true

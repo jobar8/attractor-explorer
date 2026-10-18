@@ -55,6 +55,7 @@ ipython_config.py
 
 # Environments
 .venv
+uv.lock
 
 # VS Code
 .vscode/

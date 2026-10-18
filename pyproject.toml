@@ -1,47 +1,32 @@
-[build-system]
-requires = ["hatchling", "hatch-vcs"]
-build-backend = "hatchling.build"
-
 [project]
 name = "attractor-explorer"
-dynamic = ["version"]
-description = 'A panel dashboard for exploring strange attractors'
+description = "A panel dashboard for exploring strange attractors"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = "MIT"
-keywords = []
 authors = [{ name = "Joseph Barraud", email = "joseph.barraud@gmail.com" }]
+keywords = []
+version = "0.4.0"
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "pandas",
-  "numba",
-  "datashader",
-  "colorcet",
   "bokeh",
+  "colorcet",
+  "dask[dataframe]",
+  "datashader",
   "holoviews",
+  "numba",
+  "pandas",
   "panel",
   "param",
   "pydantic",
-  "dask[dataframe]",
-]
-
-[project.optional-dependencies]
-ci = ["pytest>=8.3.3", "pytest-cov>=5.0.0", "ruff>=0.6.4"]
-
-dev = [
-  "attractor-explorer[ci]",
-  "hvplot>=0.10.0",
-  "ipykernel>=6.29.5",
-  "seaborn>=0.13.2",
-  "jupyter_bokeh",
 ]
 
 [project.urls]
@@ -49,14 +34,20 @@ Documentation = "https://github.com/jobar8/attractor-explorer#readme"
 Issues = "https://github.com/jobar8/attractor-explorer/issues"
 Source = "https://github.com/jobar8/attractor-explorer"
 
-[tool.hatch.version]
-source = "vcs"
+[dependency-groups]
+ci = ["pytest>=8.3.3", "pytest-cov>=5.0.0", "ruff>=0.6.4"]
 
-[tool.hatch.build.hooks.vcs]
-version-file = "src/attractor_explorer/_version.py"
+dev = [
+  "attractor-explorer[ci]",
+  "hvplot>=0.10.0",
+  "ipykernel>=6.29.5",
+  "jupyter_bokeh",
+  "seaborn>=0.13.2",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14"]
+build-backend = "uv_build"
 
 [tool.pytest.ini_options]
 addopts = "--cov=attractor_explorer"
-
-[tool.coverage.run]
-omit = ["src/attractor_explorer/_version.py"]

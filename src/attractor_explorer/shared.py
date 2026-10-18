@@ -1,7 +1,7 @@
 """Support functions for dashboards."""
 
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 
 import datashader as ds
 import pandas as pd

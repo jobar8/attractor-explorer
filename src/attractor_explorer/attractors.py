@@ -16,6 +16,8 @@ from param import concrete_descendents
 
 from attractor_explorer.maths import trajectory
 
+# ruff: file-ignore[unused-static-method-argument]
+
 RNG = np.random.default_rng(42)
 
 
@@ -47,7 +49,7 @@ class Attractor(param.Parameterized):
 
     def update(self, args: dict[str, Any]):
         for key, value in args.items():
-            self.__setattr__(key, value)
+            setattr(self, key, value)
 
     def vals(self):
         return [self.__class__.name] + [self.colormap] + [getattr(self, p) for p in self.signature()]
@@ -70,7 +72,7 @@ class Clifford(FourParamAttractor):
 
     @staticmethod
     @jit(cache=True)
-    def fn(x, y, a, b, c, d, *o):  # noqa: ARG004
+    def fn(x, y, a, b, c, d, *o):  # ty: ignore[invalid-attribute-override]
         return sin(a * y) + c * cos(a * x), sin(b * x) + d * cos(b * y)
 
 
@@ -79,7 +81,7 @@ class DeJong(FourParamAttractor):
 
     @staticmethod
     @jit(cache=True)
-    def fn(x, y, a, b, c, d, *o):  # noqa: ARG004
+    def fn(x, y, a, b, c, d, *o):  # ty: ignore[invalid-attribute-override]
         return sin(a * y) - cos(b * x), sin(c * x) - cos(d * y)
 
 
@@ -88,7 +90,7 @@ class Svensson(FourParamAttractor):
 
     @staticmethod
     @jit(cache=True)
-    def fn(x, y, a, b, c, d, *o):  # noqa: ARG004
+    def fn(x, y, a, b, c, d, *o):  # ty: ignore[invalid-attribute-override]
         return d * sin(a * x) - sin(b * y), c * cos(a * x) + cos(b * y)
 
 
@@ -100,7 +102,7 @@ class FractalDream(FourParamAttractor):
 
     @staticmethod
     @jit(cache=True)
-    def fn(x, y, a, b, c, d, *o):  # noqa: ARG004
+    def fn(x, y, a, b, c, d, *o):  # ty: ignore[invalid-attribute-override]
         return sin(b * y) + c * sin(b * x), sin(a * x) + d * sin(a * y)
 
 
@@ -115,13 +117,13 @@ class Bedhead(Attractor):
 
     @staticmethod
     @jit(cache=True)
-    def fn(x, y, a, b, *o):  # noqa: ARG004
+    def fn(x, y, a, b, *o):
         return y * sin(x * y / b) + cos(a * x - y), x + sin(y) / b
 
-    def __call__(self, n):
+    def __call__(self, n):  # ty: ignore[invalid-method-override]
         # Avoid interactive divide-by-zero errors for b
         epsilon = 3 * np.finfo(float).eps
-        if -epsilon < float(self.b) < epsilon:  # type: ignore
+        if -epsilon < float(self.b) < epsilon:
             self.b = float(epsilon)
         return super().__call__(n)
 
@@ -135,7 +137,7 @@ class Hopalong1(Attractor):
 
     @staticmethod
     @jit(cache=True)
-    def fn(x, y, a, b, c, *o):  # noqa: ARG004
+    def fn(x, y, a, b, c, *o):  # ty: ignore[invalid-attribute-override]
         return y - sqrt(fabs(b * x - c)) * np.sign(x), a - x
 
 
@@ -147,7 +149,7 @@ class Hopalong2(Hopalong1):
 
     @staticmethod
     @jit(cache=True)
-    def fn(x, y, a, b, c, *o):  # noqa: ARG004
+    def fn(x, y, a, b, c, *o):
         return y - 1.0 - sqrt(fabs(b * x - 1.0 - c)) * np.sign(x - 1.0), a - x - 1.0
 
 
@@ -170,7 +172,7 @@ class GumowskiMira(Attractor):
 
     @staticmethod
     @jit(cache=True)
-    def fn(x, y, a, b, mu, *o):  # noqa: ARG004
+    def fn(x, y, a, b, mu, *o):  # ty: ignore[invalid-attribute-override]
         xn = y + a * (1 - b * y**2) * y + g_func(x, mu)
         yn = -x + g_func(xn, mu)
         return xn, yn
@@ -186,7 +188,7 @@ class SymmetricIcon(Attractor):
 
     @staticmethod
     @jit(cache=True)
-    def fn(x, y, a, b, gamma, omega, lambda_, degree, *o):  # noqa: ARG004
+    def fn(x, y, a, b, gamma, omega, lambda_, degree, *o):  # ty: ignore[invalid-attribute-override]
         zzbar = x * x + y * y
         p = a * zzbar + lambda_
         zreal, zimag = x, y
@@ -214,7 +216,7 @@ class ParameterSets(param.Parameterized):
     attractors: dict[str, Attractor]
 
     load = param.Action(lambda x: x._load())
-    random = param.Action(lambda x: x._randomize())
+    random = param.Action(lambda x: x._randomize())  # ty: ignore[no-matching-overload]
     # sort = param.Action(lambda x: x._sort())
     remember_this_one = param.Action(lambda x: x._remember(), precedence=0.81)
     save = param.Action(lambda x: x._save(), precedence=0.99)
@@ -234,7 +236,7 @@ class ParameterSets(param.Parameterized):
                 pass
 
     def _load(self):
-        with (Path(self.data_folder) / self.input_examples_filename).open('r') as f:  # type: ignore
+        with (Path(self.data_folder) / self.input_examples_filename).open('r') as f:
             vals = yaml.safe_load(f)
             if len(vals) > 0:
                 self.param.example.objects = vals
@@ -244,10 +246,10 @@ class ParameterSets(param.Parameterized):
         if self.output_examples_filename == self.param.input_examples_filename.default:
             msg = 'Cannot override the default attractors file.'
             raise FileExistsError(msg)
-        output_path = Path(self.data_folder) / self.output_examples_filename  # type: ignore
+        output_path = Path(self.data_folder) / self.output_examples_filename
         with output_path.open('w') as f:
             yaml.dump(list(self.param.example.objects), f)
-        print(f'Parameters have been saved to {output_path}')  # noqa: T201
+        print(f'Parameters have been saved to {output_path}')  # ruff: ignore[print]
 
     def __call__(self):
         return self.example
@@ -265,7 +267,7 @@ class ParameterSets(param.Parameterized):
         self.example = item
 
     def _remember(self):
-        vals = self.current().vals()  # type: ignore
+        vals = self.current().vals()
         self._add_item(vals)
 
     def args(self, name):
