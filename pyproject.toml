@@ -2,15 +2,13 @@
 name = "attractor-explorer"
 description = "A panel dashboard for exploring strange attractors"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = "MIT"
 authors = [{ name = "Joseph Barraud", email = "joseph.barraud@gmail.com" }]
 keywords = []
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
