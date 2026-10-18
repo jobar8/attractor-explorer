@@ -1,16 +1,11 @@
-[build-system]
-requires = ["hatchling", "hatch-vcs"]
-build-backend = "hatchling.build"
-
 [project]
 name = "attractor-explorer"
-dynamic = ["version"]
-description = 'A panel dashboard for exploring strange attractors'
+description = "A panel dashboard for exploring strange attractors"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-keywords = []
 authors = [{ name = "Joseph Barraud", email = "joseph.barraud@gmail.com" }]
+keywords = []
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
@@ -21,33 +16,41 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "pandas",
-  "numba",
-  "datashader",
-  "colorcet",
   "bokeh",
+  "colorcet",
+  "dask[dataframe]",
+  "datashader",
   "holoviews",
+  "numba",
+  "pandas",
   "panel",
   "param",
   "pydantic",
-  "dask[dataframe]",
 ]
+dynamic = ["version"]
 
-[project.optional-dependencies]
+[project.urls]
+Documentation = "https://github.com/jobar8/attractor-explorer#readme"
+Issues = "https://github.com/jobar8/attractor-explorer/issues"
+Source = "https://github.com/jobar8/attractor-explorer"
+
+[dependency-groups]
 ci = ["pytest>=8.3.3", "pytest-cov>=5.0.0", "ruff>=0.6.4"]
 
 dev = [
   "attractor-explorer[ci]",
   "hvplot>=0.10.0",
   "ipykernel>=6.29.5",
-  "seaborn>=0.13.2",
   "jupyter_bokeh",
+  "seaborn>=0.13.2",
 ]
 
-[project.urls]
-Documentation = "https://github.com/jobar8/attractor-explorer#readme"
-Issues = "https://github.com/jobar8/attractor-explorer/issues"
-Source = "https://github.com/jobar8/attractor-explorer"
+[build-system]
+requires = ["hatch-vcs", "hatchling"]
+build-backend = "hatchling.build"
+
+[tool.coverage.run]
+omit = ["src/attractor_explorer/_version.py"]
 
 [tool.hatch.version]
 source = "vcs"
@@ -57,6 +60,3 @@ version-file = "src/attractor_explorer/_version.py"
 
 [tool.pytest.ini_options]
 addopts = "--cov=attractor_explorer"
-
-[tool.coverage.run]
-omit = ["src/attractor_explorer/_version.py"]
