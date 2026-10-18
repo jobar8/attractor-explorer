@@ -6,6 +6,7 @@ requires-python = ">=3.12"
 license = "MIT"
 authors = [{ name = "Joseph Barraud", email = "joseph.barraud@gmail.com" }]
 keywords = []
+version = "0.4.0"
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
@@ -27,7 +28,6 @@ dependencies = [
   "param",
   "pydantic",
 ]
-dynamic = ["version"]
 
 [project.urls]
 Documentation = "https://github.com/jobar8/attractor-explorer#readme"
@@ -46,17 +46,8 @@ dev = [
 ]
 
 [build-system]
-requires = ["hatch-vcs", "hatchling"]
-build-backend = "hatchling.build"
-
-[tool.coverage.run]
-omit = ["src/attractor_explorer/_version.py"]
-
-[tool.hatch.version]
-source = "vcs"
-
-[tool.hatch.build.hooks.vcs]
-version-file = "src/attractor_explorer/_version.py"
+requires = ["uv_build>=0.13.1,<0.14"]
+build-backend = "uv_build"
 
 [tool.pytest.ini_options]
 addopts = "--cov=attractor_explorer"
